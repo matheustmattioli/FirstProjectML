@@ -5,19 +5,23 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
+from sklearn.metrics import max_error
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.impute import SimpleImputer
+
 
 # import matplotlib.pyplot as plt
 
 # dataset src: https://archive.ics.uci.edu/ml/support/Automobile#e746c17201da2dd72583f7b9b0c2a6ba310412f4
-DEBUG = 1
+DEBUG = 0
 
+scaler = preprocessing.StandardScaler()
 
 # Recebe um DataFrame e retorna um Dataframe normalizado
 def normalize_data(dataframe):
-    scaler = preprocessing.StandardScaler()
     dataframe = scaler.fit_transform(dataframe)
     
     return dataframe
@@ -95,7 +99,19 @@ if __name__ == '__main__':
 
     # Converte os atributos categóricos para int
     X_train[categorical_columns] = X_train[categorical_columns].astype(int)
-    y_test[categorical_columns] = y_test[categorical_columns].astype(int)
+    X_test[categorical_columns] = X_test[categorical_columns].astype(int)
     
-
     debug(f"{X_train}\n=====\n{y_train}")
+
+
+    erros = []
+
+    for i in range(1,20):
+        neigh = KNeighborsRegressor(n_neighbors=i)
+        neigh.fit(X_train, y_train)
+
+        y_pred = neigh.predict(X_test)
+        erros.append(max_error(y_test, y_pred))
+    
+    plt.plot(range(1,20), erros)
+    plt.show()
