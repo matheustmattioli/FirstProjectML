@@ -151,9 +151,6 @@ def KNeighbors(X_train, X_test, y_train, y_test, show=True):
     y_best_pred = knr2.predict(X_test)
     y_pred = y_best_pred
 
-    if not show:
-        return y_best_pred
-
     # Scores variados para avaliar o desempenho
     print(f'R2-score: {r2_score(y_test, y_pred)}')
     print(f'MSE: {mean_squared_error(y_test, y_pred)}')
@@ -162,7 +159,10 @@ def KNeighbors(X_train, X_test, y_train, y_test, show=True):
     # 5-Fold Cross Validation
     scores = cross_val_score(knr2, X_train, y_train, cv=5)
     print(scores)
-    print(f"{scores.mean():.2f} acuracia com desvio padrao de {scores.std():.2f}")
+    print(f"{scores.mean():.2f} acuracia no K-NN com desvio padrao de {scores.std():.2f}")
+
+    if not show:
+        return y_best_pred
 
     # Análise do KNN para k no intervalo [1, 20]
     errors_mae = []
@@ -232,6 +232,11 @@ def RandomForest(X_train, X_test, y_train, y_test, show=True):
     )
     forest.fit(X_train, y_train['price'])
     y_pred = forest.predict(X_test)
+
+    scores = cross_val_score(forest, X_train, y_train['price'], cv=5)
+    print(scores)
+    print(f"{scores.mean():.2f} acuracia no Random Forest com desvio padrao de {scores.std():.2f}")
+
     if show:
         plot_compare_graph(y_test['price'], y_pred)
     return y_pred
@@ -280,6 +285,7 @@ if __name__ == '__main__':
     # KNN e Random Forest
     else:
         forest_pred = RandomForest(X_train, X_test, y_train, y_test, False)
+        print(30*"-")
         knn_pred = KNeighbors(X_train, X_test, y_train, y_test, False)
         plot_compare_graph(y_test['price'], knn_pred, forest_pred)
 
